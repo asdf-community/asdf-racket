@@ -6,5 +6,5 @@ function sort_versions() {
     LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
 
-curl -s https://download.racket-lang.org/all-versions.html | grep -E -o 'Version [0-9.]+' | cut -d' ' -f 2 | sort_versions
+curl -s https://download.racket-lang.org/all-versions.html | grep -E -o 'Version [0-9.]+' | cut -d' ' -f 2 # sort_versions
  
