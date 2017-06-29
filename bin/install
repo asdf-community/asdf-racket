@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+racket_pkg() {
+    local version=$1
+    local platform="src-builtpkgs"
+    if [ "${ASDF_RACKET_MINIMAL}" == "true" ]; then 
+       platform="src"
+    fi
+    echo "https://mirror.racket-lang.org/installers/${version}/racket-${version}-${platform}.tgz"
+}
+
+racket_install() {
+    local install_type=$1
+    local release=$2
+    local install_path=$3
+
+    local tmp_dir=$(mktemp -d -t racket_XXXXXXX)
+
+    local current_script_path=$(dirname ${BASH_SOURCE[0]})
+    local plugin_path=$(dirname $current_script_path)
+
+    # running this in a subshell
+    # we don't want to disturb current working dir
+    (
+        set -e
+        cd $tmp_dir
+
+        ASDF_RACKET_CONFIG_FLAGS="${ASDF_RACKET_CONFIG_FLAGS} --prefix ${install_path}"
+       
+        if [ "$(uname -s)" == "Darwin" ]; then
+           ASDF_RACKET_CONFIG_FLAGS="${ASDF_RACKET_CONFIG_FLAGS} --enable-macprefix"
+        fi
+
+        if [ "$install_type" != "version" ]; then
+            echo "asdf-racket supports release installs only."
+            exit 1
+        fi
+
+        echo ${racket_pkg}
+        curl -L "$(racket_pkg $release)" > racket-${release}.tgz
+        tar -xf racket-${release}.tgz
+        cd racket-${release}/src/
+        ./configure ${ASDF_RACKET_CONFIG_FLAGS}
+        make
+        make install 
+
+        if [ "${ASDF_RACKET_MINIMAL}" != "true" ]; then
+           $install_path/bin/raco pkg install --auto -i main-distribution
+        fi
+
+        echo "Installed Racket ${release}"
+
+    ) || (rm -rf $install_path; exit 1)
+}
+
+racket_install $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
