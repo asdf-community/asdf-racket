@@ -16,8 +16,8 @@ racket_install() {
 
     local tmp_dir=$(mktemp -d -t racket_XXXXXXX)
 
-    local current_script_path=$(dirname ${BASH_SOURCE[0]})
-    local plugin_path=$(dirname $current_script_path)
+    local current_script_path=$(dirname "${BASH_SOURCE[0]}")
+    local plugin_path=$(dirname "$current_script_path")
 
     # running this in a subshell
     # we don't want to disturb current working dir
@@ -45,7 +45,7 @@ racket_install() {
         make install 
 
         if [ "${ASDF_RACKET_MINIMAL}" != "true" ]; then
-           $install_path/bin/raco pkg install --auto -i main-distribution
+           "$install_path/bin/raco" pkg install --auto -i main-distribution
         fi
 
         echo "Installed Racket ${release}"
@@ -53,4 +53,4 @@ racket_install() {
     ) || (rm -rf $install_path; exit 1)
 }
 
-racket_install $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
+racket_install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
