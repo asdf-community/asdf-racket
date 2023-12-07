@@ -38,7 +38,7 @@ racket_install() {
     curl -L "$(racket_pkg "$release")" >r"acket-${release}.tgz"
     tar -xf "racket-${release}.tgz"
     cd "racket-${release}/src/"
-    ./configure "${ASDF_RACKET_CONFIG_FLAGS}"
+    xargs ./configure <<<"${ASDF_RACKET_CONFIG_FLAGS}"
     make
     make install
 
