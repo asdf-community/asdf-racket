@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+fail() {
+  echo "asdf-racket error:" "$*"
+  exit 1
+}
+
 racket_pkg() {
   local version=$1
   local platform="src-builtpkgs"
@@ -38,9 +43,9 @@ racket_install() {
     curl -L "$(racket_pkg "$release")" >r"acket-${release}.tgz"
     tar -xf "racket-${release}.tgz"
     cd "racket-${release}/src/"
-    xargs ./configure <<<"${ASDF_RACKET_CONFIG_FLAGS}"
-    make
-    make install
+    xargs ./configure <<<"${ASDF_RACKET_CONFIG_FLAGS}" || fail "Configuration failed"
+    make || fail "Build failed"
+    make install || fail "Installation failed"
 
     if [ "${ASDF_RACKET_MINIMAL}" != "true" ]; then
       "$install_path/bin/raco" pkg install --auto -i main-distribution
